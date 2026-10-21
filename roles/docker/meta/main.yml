@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: docker
+  author: Venkateswarlu Maddula
+  description: >-
+    Installs Docker Engine and the Compose plugin from the official Docker
+    apt repository, renders /etc/docker/daemon.json (log rotation by
+    default), and manages docker group membership.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+
+dependencies: []

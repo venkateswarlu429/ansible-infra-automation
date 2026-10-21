@@ -1,0 +1,11 @@
+---
+# roles/app_deploy/handlers/main.yml
+
+- name: Restart application stack
+  community.docker.docker_compose_v2:
+    project_name: "{{ app_deploy_name }}"
+    project_src: "{{ app_deploy_dir }}"
+    files:
+      - "{{ app_deploy_compose_filename }}"
+    state: restarted
+  when: app_deploy_enabled | bool

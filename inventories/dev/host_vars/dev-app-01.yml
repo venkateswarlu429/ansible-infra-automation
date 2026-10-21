@@ -1,0 +1,14 @@
+---
+# host_vars/dev-app-01.yml — per-host overrides for the dev app server.
+# Host vars beat group vars, which beat role defaults.
+
+# A slightly larger Docker log rotation for the chatty dev stack.
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts:
+    max-size: "50m"
+    max-file: "5"
+
+# Dev box also runs the Prometheus server container via the app stack? No —
+# node_exporter only. Scrape config lives with the monitoring role docs.
+monitoring_node_exporter_listen_address: "0.0.0.0:9100"

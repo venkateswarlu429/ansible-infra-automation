@@ -1,0 +1,33 @@
+---
+# roles/monitoring/defaults/main.yml
+
+monitoring_node_exporter_enabled: true
+
+# Release pinning: bump the version AND the checksum together.
+# Checksums are published per release in sha256sums.txt, e.g.
+# https://github.com/prometheus/node_exporter/releases/download/v1.8.2/sha256sums.txt
+monitoring_node_exporter_version: "1.8.2"
+# Format: "sha256:<hex digest of the tarball>". Left empty by default;
+# when set, the download is verified. Set it in group_vars for real fleets.
+monitoring_node_exporter_checksum: ""
+
+monitoring_node_exporter_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armv7
+monitoring_node_exporter_arch: "{{ monitoring_node_exporter_arch_map[ansible_facts.architecture] | default('amd64') }}"
+monitoring_node_exporter_tarball: "node_exporter-{{ monitoring_node_exporter_version }}.linux-{{ monitoring_node_exporter_arch }}.tar.gz"
+monitoring_node_exporter_base_url: "https://github.com/prometheus/node_exporter/releases/download"
+monitoring_node_exporter_download_url: >-
+  {{ monitoring_node_exporter_base_url }}/v{{ monitoring_node_exporter_version }}/{{ monitoring_node_exporter_tarball }}
+monitoring_node_exporter_install_dir: "/opt/node_exporter-{{ monitoring_node_exporter_version }}.linux-{{ monitoring_node_exporter_arch }}"
+monitoring_node_exporter_bin: /usr/local/bin/node_exporter
+
+monitoring_node_exporter_user: node_exporter
+monitoring_node_exporter_group: node_exporter
+monitoring_node_exporter_listen_address: "0.0.0.0:9100"
+monitoring_node_exporter_textfile_dir: /var/lib/node_exporter/textfile_collector
+# Extra collectors to enable explicitly (empty = node_exporter defaults).
+monitoring_node_exporter_collectors: []
+# Collectors to disable even if enabled by default.
+monitoring_node_exporter_disabled_collectors: []

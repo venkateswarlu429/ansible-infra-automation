@@ -1,0 +1,56 @@
+---
+# roles/common/defaults/main.yml
+
+# Base packages installed on every host.
+common_base_packages:
+  - ca-certificates
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - jq
+  - unzip
+  - gnupg
+  - lsb-release
+  - python3
+  - python3-apt
+  - sudo
+  - rsync
+  - tmux
+
+# IANA timezone name, e.g. "UTC", "America/New_York", "Asia/Kolkata".
+common_timezone: "UTC"
+
+# NTP — chrony is used because it handles bursty VM clocks and
+# intermittent connectivity better than classic ntpd.
+common_ntp_enabled: true
+common_ntp_servers:
+  - "0.pool.ntp.org iburst"
+  - "1.pool.ntp.org iburst"
+  - "2.pool.ntp.org iburst"
+  - "3.pool.ntp.org iburst"
+common_ntp_service: chrony
+
+# Administrative user. The account is created with a locked password by
+# default; set common_admin_user_password_hash from a vault variable if you need
+# password-based sudo/console access:
+#   common_admin_user_password_hash: "{{ vault_admin_user_password_hash }}"
+common_admin_user_name: deploy
+common_admin_user_shell: /bin/bash
+common_admin_user_groups:
+  - sudo
+common_admin_user_password_hash: "!"
+common_admin_user_create_home: true
+
+# SSH public keys installed for the admin user (ansible.posix.authorized_key).
+# Paste real keys here (or in group_vars) — the entry below is a commented
+# placeholder showing the expected format, NOT a real key:
+# common_admin_user_ssh_keys:
+#   - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExamplePlaceholderKeyMaterialHere user@laptop"
+common_admin_user_ssh_keys: []
+
+# Whether apt cache should be refreshed by this role (kept true so a bare
+# first run against a fresh VM works; set false if another role owns it).
+common_apt_update_cache: true
+common_apt_cache_valid_time: 3600

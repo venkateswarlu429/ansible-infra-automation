@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+# Docker Compose stack for {{ app_deploy_name }} — rendered by the Ansible
+# "app_deploy" role from the `app_deploy_stack` variable. Edit the variable in
+# group_vars/host_vars, not this file.
+{{ app_deploy_stack | to_nice_yaml(indent=2) }}

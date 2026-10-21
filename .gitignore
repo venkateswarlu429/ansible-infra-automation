@@ -1,0 +1,27 @@
+# Ansible
+*.retry
+.ansible_facts/
+.ansible/
+
+# Vault — never commit decrypted or real vault files.
+# (vault.yml.example templates ARE tracked; real vault.yml files are not.)
+**/group_vars/*/vault.yml
+**/host_vars/*/vault.yml
+vault_password_file
+.vault_pass
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs & backups produced by runs
+*.log
+*.bak

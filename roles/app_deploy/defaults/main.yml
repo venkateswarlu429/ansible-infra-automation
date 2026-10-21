@@ -1,0 +1,36 @@
+---
+# roles/app_deploy/defaults/main.yml
+
+app_deploy_enabled: false
+
+# Identity of the stack. The compose project name and on-disk directory
+# are derived from app_deploy_name.
+app_deploy_name: demo-api
+app_deploy_root: /opt/apps
+app_deploy_dir: "{{ app_deploy_root }}/{{ app_deploy_name }}"
+app_deploy_compose_filename: docker-compose.yml
+app_deploy_owner: root
+app_deploy_group: root
+
+# The Compose stack, expressed as data and rendered by template.
+# Override app_deploy_stack wholesale in group_vars / host_vars per environment.
+# (This default mirrors what inventories/dev/group_vars/all.yml sets.)
+app_deploy_stack:
+  services:
+    api:
+      image: "nginx:1.27-alpine"
+      restart: unless-stopped
+      ports:
+        - "8080:80"
+
+# Environment variables written to {{ app_deploy_dir }}/.env and referenced from
+# the compose file as ${VAR}. Put real values in vault-backed vars, e.g.
+#   app_deploy_env_vars:
+#     DB_PASSWORD: "{{ vault_app_db_password }}"
+app_deploy_env_vars: {}
+
+# Deployment behaviour (community.docker.docker_compose_v2).
+app_deploy_pull: true            # pull newer images on each run
+app_deploy_recreate: auto        # recreate containers when config/image changes
+app_deploy_remove_orphans: true
+app_deploy_build: false

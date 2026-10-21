@@ -1,0 +1,79 @@
+---
+# roles/common/tasks/main.yml
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: "{{ common_apt_cache_valid_time }}"
+  when:
+    - ansible_facts.os_family == "Debian"
+    - common_apt_update_cache | bool
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ common_base_packages }}"
+    state: present
+  when: ansible_facts.os_family == "Debian"
+
+- name: Set system timezone
+  community.general.timezone:
+    name: "{{ common_timezone }}"
+
+- name: Install chrony for NTP synchronisation
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+  when:
+    - ansible_facts.os_family == "Debian"
+    - common_ntp_enabled | bool
+
+- name: Template chrony configuration
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chrony
+  when: common_ntp_enabled | bool
+
+- name: Enable and start chrony
+  ansible.builtin.service:
+    name: "{{ common_ntp_service }}"
+    enabled: true
+    state: started
+  when: common_ntp_enabled | bool
+
+- name: Create the admin group
+  ansible.builtin.group:
+    name: "{{ common_admin_user_name }}"
+    state: present
+
+- name: Create the admin user
+  ansible.builtin.user:
+    name: "{{ common_admin_user_name }}"
+    group: "{{ common_admin_user_name }}"
+    groups: "{{ common_admin_user_groups | join(',') }}"
+    append: true
+    shell: "{{ common_admin_user_shell }}"
+    password: "{{ common_admin_user_password_hash }}"
+    create_home: "{{ common_admin_user_create_home }}"
+    state: present
+
+- name: Allow the admin user passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ common_admin_user_name }}"
+    content: "{{ common_admin_user_name }} ALL=(ALL) NOPASSWD: ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Install SSH authorized keys for the admin user
+  ansible.posix.authorized_key:
+    user: "{{ common_admin_user_name }}"
+    key: "{{ item }}"
+    state: present
+    manage_dir: true
+  loop: "{{ common_admin_user_ssh_keys }}"
+  when: common_admin_user_ssh_keys | length > 0

@@ -1,0 +1,28 @@
+// {{ ansible_managed }}
+// unattended-upgrades policy — managed by the Ansible "hardening" role.
+
+Unattended-Upgrade::Allowed-Origins {
+{% for origin in hardening_unattended_origins %}
+        "{{ origin }}";
+{% endfor %}
+};
+
+// Never auto-upgrade these packages (space separated patterns).
+Unattended-Upgrade::Package-Blacklist {
+};
+
+// Split the upgrade into the smallest possible chunks so an interrupted
+// upgrade can be recovered by the next run.
+Unattended-Upgrade::MinimalSteps "true";
+
+// Reboot automatically only if explicitly enabled for this inventory.
+Unattended-Upgrade::Automatic-Reboot "{{ 'true' if hardening_unattended_automatic_reboot else 'false' }}";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ hardening_unattended_reboot_time }}";
+{% if hardening_unattended_mail | length > 0 %}
+Unattended-Upgrade::Mail "{{ hardening_unattended_mail }}";
+Unattended-Upgrade::MailReport "on-change";
+{% endif %}
+
+// Remove unused automatically installed kernel-related packages.
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";

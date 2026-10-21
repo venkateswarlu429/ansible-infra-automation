@@ -1,0 +1,54 @@
+---
+# roles/app_deploy/tasks/main.yml
+
+- name: Ensure the applications root directory exists
+  ansible.builtin.file:
+    path: "{{ app_deploy_root }}"
+    state: directory
+    owner: "{{ app_deploy_owner }}"
+    group: "{{ app_deploy_group }}"
+    mode: "0755"
+  when: app_deploy_enabled | bool
+
+- name: Ensure the application directory exists
+  ansible.builtin.file:
+    path: "{{ app_deploy_dir }}"
+    state: directory
+    owner: "{{ app_deploy_owner }}"
+    group: "{{ app_deploy_group }}"
+    mode: "0755"
+  when: app_deploy_enabled | bool
+
+- name: Template the Docker Compose stack
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ app_deploy_dir }}/{{ app_deploy_compose_filename }}"
+    owner: "{{ app_deploy_owner }}"
+    group: "{{ app_deploy_group }}"
+    mode: "0644"
+  when: app_deploy_enabled | bool
+
+- name: Template the application environment file
+  ansible.builtin.template:
+    src: app.env.j2
+    dest: "{{ app_deploy_dir }}/.env"
+    owner: "{{ app_deploy_owner }}"
+    group: "{{ app_deploy_group }}"
+    mode: "0600"
+  notify: Restart application stack
+  when:
+    - app_deploy_enabled | bool
+    - app_deploy_env_vars | length > 0
+
+- name: Deploy the application stack
+  community.docker.docker_compose_v2:
+    project_name: "{{ app_deploy_name }}"
+    project_src: "{{ app_deploy_dir }}"
+    files:
+      - "{{ app_deploy_compose_filename }}"
+    state: present
+    pull: "{{ 'always' if app_deploy_pull else 'missing' }}"
+    recreate: "{{ app_deploy_recreate }}"
+    remove_orphans: "{{ app_deploy_remove_orphans }}"
+    build: "{{ 'always' if app_deploy_build else 'never' }}"
+  when: app_deploy_enabled | bool

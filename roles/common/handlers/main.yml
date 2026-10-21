@@ -1,0 +1,8 @@
+---
+# roles/common/handlers/main.yml
+
+- name: Restart chrony
+  ansible.builtin.service:
+    name: "{{ common_ntp_service }}"
+    state: restarted
+  when: common_ntp_enabled | bool

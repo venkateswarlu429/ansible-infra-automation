@@ -1,0 +1,44 @@
+---
+# group_vars/all.yml — production overrides.
+# Deliberately stricter than dev: longer bans, automatic security updates,
+# password authentication fully disabled (enforced by the hardening role).
+
+env_name: prod
+
+# Common
+common_timezone: "UTC"
+common_admin_user_name: deploy
+
+# Hardening
+hardening_sshd_password_auth: false
+hardening_sshd_permit_root_login: "no"
+hardening_fail2ban_bantime: 3600
+hardening_fail2ban_maxretry: 4
+hardening_unattended_upgrades_enabled: true
+hardening_unattended_automatic_reboot: false
+
+# Docker
+docker_users:
+  - deploy
+
+# Monitoring
+monitoring_node_exporter_enabled: true
+
+# App deploy
+app_deploy_enabled: true
+app_deploy_name: demo-api
+app_deploy_stack:
+  services:
+    api:
+      image: "nginx:1.27-alpine"
+      restart: always
+      ports:
+        - "8080:80"
+      deploy:
+        resources:
+          limits:
+            cpus: "1.0"
+            memory: "512M"
+      labels:
+        - "com.example.stack=demo-api"
+        - "com.example.env=prod"

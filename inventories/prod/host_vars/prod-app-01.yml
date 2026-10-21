@@ -1,0 +1,11 @@
+---
+# host_vars/prod-app-01.yml — per-host overrides for the first prod app server.
+
+# Primary node keeps a bigger local log buffer for the API stack.
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts:
+    max-size: "100m"
+    max-file: "5"
+
+monitoring_node_exporter_listen_address: "0.0.0.0:9100"

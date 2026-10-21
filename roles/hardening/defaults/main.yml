@@ -1,0 +1,76 @@
+---
+# roles/hardening/defaults/main.yml
+
+hardening_enabled: true
+
+# --- sshd -------------------------------------------------------------
+# Settings are rendered into a drop-in file so they survive distribution
+# sshd_config changes and are trivially auditable / removable.
+hardening_sshd_config_path: /etc/ssh/sshd_config.d/60-hardening.conf
+hardening_sshd_permit_root_login: "no"          # no | prohibit-password | forced-commands-only | yes
+hardening_sshd_password_auth: false              # key-only auth when false
+hardening_sshd_pubkey_auth: true
+hardening_sshd_max_auth_tries: 3
+hardening_sshd_login_grace_time: 30
+hardening_sshd_x11_forwarding: false
+hardening_sshd_client_alive_interval: 300
+hardening_sshd_client_alive_count_max: 2
+# Empty list = no AllowUsers restriction is rendered.
+hardening_sshd_allow_users: []
+
+# --- fail2ban ----------------------------------------------------------
+hardening_fail2ban_enabled: true
+hardening_fail2ban_bantime: 3600        # seconds
+hardening_fail2ban_findtime: 600        # seconds
+hardening_fail2ban_maxretry: 5
+hardening_fail2ban_backend: systemd
+hardening_fail2ban_ignoreip:
+  - 127.0.0.1/8
+  - "::1"
+hardening_fail2ban_jails:
+  - name: sshd
+    enabled: true
+    port: ssh
+    filter: sshd
+    maxretry: "{{ hardening_fail2ban_maxretry }}"
+
+# --- sysctl baseline -----------------------------------------------------
+# Kernel/network hardening. Values are strings because sysctl expects them.
+hardening_sysctl_settings:
+  # IP forwarding off unless the host is a router/VPN gateway.
+  net.ipv4.ip_forward: "0"
+  # Ignore ICMP redirects and do not send them.
+  net.ipv4.conf.all.accept_redirects: "0"
+  net.ipv4.conf.default.accept_redirects: "0"
+  net.ipv4.conf.all.send_redirects: "0"
+  # Ignore source-routed packets.
+  net.ipv4.conf.all.accept_source_route: "0"
+  net.ipv4.conf.default.accept_source_route: "0"
+  # Log packets with impossible addresses.
+  net.ipv4.conf.all.log_martians: "1"
+  # Reverse-path filtering (anti-spoofing).
+  net.ipv4.conf.all.rp_filter: "1"
+  net.ipv4.conf.default.rp_filter: "1"
+  # SYN cookies under flood.
+  net.ipv4.tcp_syncookies: "1"
+  # Kernel pointer / dmesg restrictions.
+  kernel.dmesg_restrict: "1"
+  kernel.kptr_restrict: "2"
+  # Restrict ptrace to child processes (yama).
+  kernel.yama.ptrace_scope: "1"
+  # Protect hardlinks/symlinks/fifos in world-writable dirs.
+  fs.protected_hardlinks: "1"
+  fs.protected_symlinks: "1"
+  fs.protected_fifos: "2"
+  fs.protected_regular: "2"
+hardening_sysctl_file: /etc/sysctl.d/60-hardening.conf
+
+# --- unattended security updates (Debian/Ubuntu) -------------------------
+hardening_unattended_upgrades_enabled: true
+hardening_unattended_origins:
+  - "${distro_id}:${distro_codename}-security"
+  - "${distro_id}ESMApps:${distro_codename}-apps-security"
+  - "${distro_id}ESM:${distro_codename}-infra-security"
+hardening_unattended_automatic_reboot: false
+hardening_unattended_reboot_time: "03:30"
+hardening_unattended_mail: ""            # e.g. "ops@example.com"; empty disables mail

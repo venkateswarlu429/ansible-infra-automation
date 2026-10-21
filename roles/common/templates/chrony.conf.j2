@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+# chrony configuration — managed by the Ansible "common" role.
+# Manual edits will be overwritten on the next playbook run.
+
+{% for server in common_ntp_servers %}
+pool {{ server }}
+{% endfor %}
+
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+keyfile /etc/chrony/chrony.keys
+ntsdumpdir /var/lib/chrony
+leapsectz right/UTC
+logdir /var/log/chrony

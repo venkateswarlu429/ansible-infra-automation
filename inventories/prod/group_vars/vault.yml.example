@@ -1,0 +1,17 @@
+---
+# vault.yml.example — the SHAPE of the encrypted vault file for production.
+#
+# How to use:
+#   1. Copy this file to vault.yml in the same directory.
+#   2. Replace every value with the real production secret.
+#   3. Encrypt it:  ansible-vault encrypt inventories/prod/group_vars/vault.yml
+#   4. Run with:    ansible-playbook -i inventories/prod site.yml --ask-vault-pass
+#
+# Production vault passwords should come from your team password manager or
+# CI secret store — never from a file committed to this repository.
+#
+# NEVER commit a decrypted vault.yml — .gitignore already excludes it.
+
+vault_admin_user_password_hash: "$6$placeholder$REPLACE_WITH_A_REAL_SHA512_CRYPT_HASH"
+vault_app_db_password: "replace-with-a-real-secret"
+vault_monitoring_basic_auth_password: "replace-with-a-real-secret"

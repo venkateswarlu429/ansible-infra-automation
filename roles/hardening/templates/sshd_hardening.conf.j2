@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+# sshd hardening drop-in — managed by the Ansible "hardening" role.
+# Placed in sshd_config.d so it overrides the stock sshd_config values
+# that Ubuntu/Debian include from this directory.
+
+PermitRootLogin {{ hardening_sshd_permit_root_login }}
+PasswordAuthentication {{ 'yes' if hardening_sshd_password_auth else 'no' }}
+ChallengeResponseAuthentication {{ 'yes' if hardening_sshd_password_auth else 'no' }}
+KbdInteractiveAuthentication {{ 'yes' if hardening_sshd_password_auth else 'no' }}
+PubkeyAuthentication {{ 'yes' if hardening_sshd_pubkey_auth else 'no' }}
+PermitEmptyPasswords no
+MaxAuthTries {{ hardening_sshd_max_auth_tries }}
+LoginGraceTime {{ hardening_sshd_login_grace_time }}
+X11Forwarding {{ 'yes' if hardening_sshd_x11_forwarding else 'no' }}
+ClientAliveInterval {{ hardening_sshd_client_alive_interval }}
+ClientAliveCountMax {{ hardening_sshd_client_alive_count_max }}
+{% if hardening_sshd_allow_users | length > 0 %}
+AllowUsers {{ hardening_sshd_allow_users | join(' ') }}
+{% endif %}

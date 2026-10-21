@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# fail2ban local configuration — managed by the Ansible "hardening" role.
+# jail.local overrides jail.conf; distribution files are left untouched.
+
+[DEFAULT]
+bantime  = {{ hardening_fail2ban_bantime }}
+findtime = {{ hardening_fail2ban_findtime }}
+maxretry = {{ hardening_fail2ban_maxretry }}
+backend  = {{ hardening_fail2ban_backend }}
+ignoreip = {{ hardening_fail2ban_ignoreip | join(' ') }}
+banaction = iptables-multiport
+
+{% for jail in hardening_fail2ban_jails %}
+[{{ jail.name }}]
+enabled  = {{ 'true' if jail.enabled else 'false' }}
+port     = {{ jail.port }}
+filter   = {{ jail.filter }}
+maxretry = {{ jail.maxretry }}
+
+{% endfor %}

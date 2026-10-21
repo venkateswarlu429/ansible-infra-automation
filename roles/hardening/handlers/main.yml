@@ -1,0 +1,13 @@
+---
+# roles/hardening/handlers/main.yml
+
+- name: Restart ssh
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+
+- name: Restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
+  when: hardening_fail2ban_enabled | bool

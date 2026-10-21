@@ -1,0 +1,55 @@
+---
+# roles/docker/defaults/main.yml
+
+docker_enabled: true
+
+# Packages removed before installing the official Docker CE packages,
+# to avoid conflicts with distribution builds.
+docker_conflicting_packages:
+  - docker.io
+  - docker-doc
+  - docker-compose
+  - podman-docker
+  - containerd
+  - runc
+
+docker_prereq_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+
+docker_ce_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Official Docker apt repository (Debian/Ubuntu).
+docker_apt_gpg_url: "https://download.docker.com/linux/{{ ansible_facts.distribution | lower }}/gpg"
+docker_apt_keyring_path: /etc/apt/keyrings/docker.asc
+docker_apt_repo_url: "https://download.docker.com/linux/{{ ansible_facts.distribution | lower }}"
+docker_apt_release: "{{ ansible_facts.distribution_release }}"
+# ansible_facts.architecture is "x86_64"/"aarch64"; the Docker repo wants dpkg names.
+docker_apt_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armhf
+docker_apt_arch: "{{ docker_apt_arch_map[ansible_facts.architecture] | default('amd64') }}"
+
+# /etc/docker/daemon.json — rendered with to_nice_json from this dict.
+# Log rotation defaults keep container logs from eating the disk.
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
+  storage-driver: "overlay2"
+  live-restore: true
+
+# Users added to the docker group (group membership == root equivalence;
+# keep this list short and treat it as a privileged group).
+docker_users: []
+
+docker_service_enabled: true
+docker_service_state: started

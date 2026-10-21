@@ -1,0 +1,28 @@
+[Unit]
+Description=Prometheus Node Exporter
+Documentation=https://prometheus.io/docs/guides/node-exporter/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ monitoring_node_exporter_user }}
+Group={{ monitoring_node_exporter_group }}
+ExecStart={{ monitoring_node_exporter_bin }} \
+  --web.listen-address={{ monitoring_node_exporter_listen_address }} \
+  --collector.textfile.directory={{ monitoring_node_exporter_textfile_dir }}{% for c in monitoring_node_exporter_collectors %} \
+  --collector.{{ c }}{% endfor %}{% for c in monitoring_node_exporter_disabled_collectors %} \
+  --no-collector.{{ c }}{% endfor %}
+
+Restart=always
+RestartSec=5
+# Light sandboxing — node_exporter only needs to read /proc and /sys.
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

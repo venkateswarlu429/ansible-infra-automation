@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: app_deploy
+  author: Venkateswarlu Maddula
+  description: >-
+    Deploys a Docker Compose application stack whose compose file and .env
+    are rendered from Ansible variables, using community.docker's
+    docker_compose_v2 module.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+
+dependencies: []

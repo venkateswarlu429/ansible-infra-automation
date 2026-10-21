@@ -1,0 +1,15 @@
+---
+# Ansible Galaxy dependencies.
+# Install with: ansible-galaxy install -r requirements.yml
+#
+# Only collections that are actually exercised by the roles in this repo:
+#   - ansible.posix      -> authorized_key, sysctl, firewalld, mount, selinux
+#   - community.general  -> timezone handling helpers, ufw, snap, parted, etc.
+#   - community.docker   -> docker_compose_v2 / docker_container in app_deploy
+collections:
+  - name: ansible.posix
+    version: ">=1.5.4"
+  - name: community.general
+    version: ">=9.0.0"
+  - name: community.docker
+    version: ">=3.10.0"

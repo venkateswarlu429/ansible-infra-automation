@@ -1,0 +1,35 @@
+---
+# group_vars/all.yml — development overrides.
+# Anything not set here falls back to each role's defaults/main.yml.
+
+env_name: dev
+
+# Common
+common_timezone: "UTC"
+common_admin_user_name: deploy
+
+# Hardening — dev stays a little more permissive for debugging, but the
+# same controls are exercised so the code path is identical to prod.
+hardening_sshd_password_auth: false
+hardening_fail2ban_bantime: 600
+hardening_unattended_upgrades_enabled: true
+
+# Docker
+docker_users:
+  - deploy
+
+# Monitoring
+monitoring_node_exporter_enabled: true
+
+# App deploy — a tiny demo stack in dev.
+app_deploy_enabled: true
+app_deploy_name: demo-api
+app_deploy_stack:
+  services:
+    api:
+      image: "nginx:1.27-alpine"
+      restart: unless-stopped
+      ports:
+        - "8080:80"
+      labels:
+        - "com.example.stack=demo-api"

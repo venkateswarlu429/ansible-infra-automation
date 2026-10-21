@@ -1,0 +1,19 @@
+---
+# vault.yml.example — the SHAPE of the encrypted vault file for this inventory.
+#
+# How to use:
+#   1. Copy this file to vault.yml in the same directory.
+#   2. Replace every value with the real secret.
+#   3. Encrypt it:  ansible-vault encrypt inventories/dev/group_vars/vault.yml
+#   4. Run with:    ansible-playbook site.yml --ask-vault-pass
+#                   (or point ANSIBLE_VAULT_PASSWORD_FILE at a protected file)
+#
+# Variables referenced by roles use the `vault_` prefix and are mapped to
+# plain variables in group_vars/all.yml, e.g.:
+#   common_admin_user_password_hash: "{{ vault_admin_user_password_hash }}"
+#
+# NEVER commit a decrypted vault.yml — .gitignore already excludes it.
+
+vault_admin_user_password_hash: "$6$placeholder$REPLACE_WITH_A_REAL_SHA512_CRYPT_HASH"
+vault_app_db_password: "replace-with-a-real-secret"
+vault_monitoring_basic_auth_password: "replace-with-a-real-secret"
